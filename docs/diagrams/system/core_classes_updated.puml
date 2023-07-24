@@ -1,0 +1,92 @@
+@startuml classes
+set namespaceSeparator none
+class "Sessions" as core.session.Sessions #aliceblue {
+  sessions : dict
+  add_new_session(username: str, db: Database) -> None
+  get_all_sessions() -> dict
+  get_session(username: str) -> UserSession
+  remove_session(username: str) -> None
+}
+class "UserSession" as core.session.UserSession #aliceblue {
+  cart : dict
+  date : datetime, NoneType
+  db : Database
+  total_cost : int
+  username : str
+  add_new_item(id: str, name: str, price: int, quantity: int, discount: float, tax_rate: float) -> None
+  empty_cart() -> dict
+  is_item_in_cart(id: str) -> bool
+  remove_item(id: str) -> None
+  submit_cart() -> None
+  update_item_quantity(id: str, change_to_quantity: int) -> None
+  update_total_cost() -> None
+}
+class "Customer" as core.object.Customer #aliceblue {
+  cart : dict
+  date : datetime, NoneType
+  db : Database
+  total_cost : int
+  preferences : Preferences
+  setFirstName(first_name : str) -> None
+  getFirstName() -> str
+  setMiddleInitial(middle_initial : str) -> None
+  getMiddleInitial() -> str
+  setLastName(last_name : str) -> None
+  getLastName() -> str
+  setAddressLine1(address_line1 : str) -> None
+  getAddressLine1() -> str
+  setAddressLine2(address_line2 : str) -> None
+  getAddressLine2() -> str
+  setZipcode(zipcode : str) -> None
+  getZipcode() -> str
+  setPhone(phone : str) -> None
+  getPhone() -> str
+  setEmail(email : str) -> None
+  getEmail() -> str
+  setPassword(hashedPassword : str)
+  getPassword() -> str
+  setPasswordAttempts() -> None
+  getPasswordAttempts() -> int
+  setUsername(username : str) -> None
+  getUsername() -> str
+}
+class "Preferences" as core.object.Preferences #aliceblue {
+  db : Database
+  customer : Customer
+  setScreenMode(screen_mode : str) -> None
+  getScreenMode() -> str
+  setTileSize(tile_size : str) -> None
+  getTileSize() -> str
+  setPromotionalEmails(allow_emails : boolean) -> None
+  getPromotionalEmails() -> boolean
+  setBestContactMethod(contact_method : str) -> None
+  getBestContactMethod() -> str
+}
+class "Product" as core.object.Product #aliceblue {
+  db : Database
+  manufacturer : Manufacturer
+  setPrice(price : str) -> None
+  getPrice() -> float
+  setAvailableQuantity(quantity : str) -> None
+  getAvailableQuantity() -> int
+  setProductCode(product_code : str) -> None
+  getProductCode() -> str
+  setManufacturerCode(manufacturer_code : str) -> None
+  getManufacturerCode() -> str
+}
+class "Manufacturer" as core.object.Manufacturer #aliceblue {
+  db : Database
+  setManufacturerCode(code : str) -> None
+  getManufacturerCode() -> str
+  setAddressLine1(address_line1 : str) -> None
+  getManufacturerAddressLine1() -> str
+  setManufacturerAddressLine2(address_line2 : str) -> None
+  getManufacturerAddressLine2() -> str
+  setManufacturerZipcode(zipcode : str) -> None
+  getManufacturerZipcode() -> str
+  setManufacturerPhone(phone : str) -> None
+  getManufacturerPhone() -> str
+  setManufacturerEmail(email : str) -> None
+  getManufacturerEmail() -> str
+}
+@enduml

@@ -1,0 +1,10 @@
+@startuml customer
+left to right direction
+actor Customer
+rectangle "System" as system {
+  (Register)
+  (Set Preferences)
+}
+Customer --> (Register)
+Customer --> (Set Preferences)
+@enduml
