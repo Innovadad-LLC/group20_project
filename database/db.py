@@ -266,7 +266,7 @@ class Database:
             "INSERT INTO users (username, password_hash, email, first_name, last_name) VALUES (?, ?, ?, ?, ?)",
             (username, password_hash, email, first_name, last_name))
         self.connection.commit()
-        
+
     # ------ Getter methods ------
 
     def get_all_user_information(self):
