@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from authentication.auth_tools import login_pipeline, update_passwords, hash_password
+from authentication.auth_tools import login_pipeline, update_passwords, hash_password, username_exists
 from database.db import Database
 from flask import Flask, render_template, request
 from core.session import Sessions
@@ -102,10 +102,14 @@ def register():
     email = request.form['email']
     first_name = request.form['first_name']
     last_name = request.form['last_name']
-    salt, key = hash_password(password)
-    update_passwords(username, key, salt)
-    db.insert_user(username, key, email, first_name, last_name)
-    return render_template('index.html')
+    if not username_exists(username):
+        salt, key = hash_password(password)
+        update_passwords(username, key, salt)
+        db.insert_user(username, key, email, first_name, last_name)
+        return render_template('index.html')
+    else:
+        print(f"Username ({username}) is already taken.")
+        return render_template('register.html')
 
 
 @app.route('/checkout', methods=['POST'])

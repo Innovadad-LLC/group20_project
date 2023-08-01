@@ -29,7 +29,6 @@ def username_exists(username: str) -> bool:
     returns:
         - True if the username exists, False if not.
     """
-
     with open("authentication/passwords.txt", "r") as file:
         lines = file.readlines()
     for line in lines:
@@ -54,7 +53,6 @@ def update_passwords(username: str, key: str, salt: str):
     modifies:
         - passwords.txt: Updates an existing or adds a new username and password combination to the file.
     """
-
     with open("authentication/passwords.txt", "r") as file:
         lines = file.readlines()
     with open("authentication/passwords.txt", "w") as file:
