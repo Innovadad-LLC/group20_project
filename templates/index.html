@@ -35,4 +35,11 @@
             </form>
         </div>
     </div>
+    <script>
+        var divMaxHeight = 0;
+        $('.product_card-body').each(function() {
+            divMaxHeight = Math.max(divMaxHeight, $(this).height());
+        });
+        $('.product_card-body').css({height:divMaxHeight + 'px'});
+    </script>
     {% endblock %}
