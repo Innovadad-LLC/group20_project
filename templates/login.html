@@ -4,6 +4,9 @@
 <div class="row" id="info_row">
     <h3>Welcome back!</h3>
     <div class="col-md-12" id="login_class">
+        {% if error %}
+            <div class="error">* Incorrect username or password *</div>
+        {% endif %}
         <form action="/home" method="post" id="login_form">
             <div class="form-group" id="info_form_group">
                 <label for="username">Username</label>

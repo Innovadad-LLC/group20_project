@@ -65,7 +65,7 @@ def login():
         return render_template('home.html', products=products, sessions=sessions)
     else:
         print(f"Incorrect username ({username}) or password ({password}).")
-        return render_template('index.html')
+        return render_template('login.html', error=True)
 
 
 @app.route('/register')
@@ -106,10 +106,11 @@ def register():
         salt, key = hash_password(password)
         update_passwords(username, key, salt)
         db.insert_user(username, key, email, first_name, last_name)
-        return render_template('index.html')
+        sessions.add_new_session(username, db)
+        return render_template('home.html', products=products, sessions=sessions)
     else:
         print(f"Username ({username}) is already taken.")
-        return render_template('register.html')
+        return render_template('register.html', error=True)
 
 
 @app.route('/checkout', methods=['POST'])
