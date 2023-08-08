@@ -8,7 +8,7 @@ from core.session import Sessions
 app = Flask(__name__)
 HOST, PORT = 'localhost', 8080
 global username, products, db, sessions
-username = 'default'
+username = ''
 db = Database('database/store_records.db')
 products = db.get_full_inventory()
 sessions = Sessions()
@@ -42,6 +42,22 @@ def login_page():
     """
     return render_template('login.html')
 
+@app.route('/logout')
+def logout_page():
+    """
+    Renders the login page when the user is at the `/login` endpoint.
+
+    args:
+        - None
+
+    returns:
+        - None
+    """
+    user_session = sessions.get_session(username)
+    if user_session != None:
+        sessions.remove_session(username)
+    return render_template('logout.html')
+
 
 @app.route('/home', methods=['POST'])
 def login():
@@ -62,7 +78,7 @@ def login():
     password = request.form['password']
     if login_pipeline(username, password):
         sessions.add_new_session(username, db)
-        return render_template('home.html', products=products, sessions=sessions)
+        return render_template('home.html', products=products, sessions=sessions, logged_in=True)
     else:
         print(f"Incorrect username ({username}) or password ({password}).")
         return render_template('login.html', error=True)
@@ -107,7 +123,7 @@ def register():
         update_passwords(username, key, salt)
         db.insert_user(username, key, email, first_name, last_name)
         sessions.add_new_session(username, db)
-        return render_template('home.html', products=products, sessions=sessions)
+        return render_template('home.html', products=products, sessions=sessions, logged_in=True)
     else:
         print(f"Username ({username}) is already taken.")
         return render_template('register.html', error=True)
@@ -139,7 +155,7 @@ def checkout():
 
     user_session.submit_cart()
 
-    return render_template('checkout.html', order=order, sessions=sessions, total_cost=user_session.total_cost)
+    return render_template('checkout.html', order=order, sessions=sessions, total_cost=user_session.total_cost, logged_in=True)
 
 
 if __name__ == '__main__':
