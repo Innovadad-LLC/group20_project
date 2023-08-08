@@ -18,10 +18,11 @@
                 <div class="form-group">
                     <div class="product_div container-fluid">
                         {% for product in products %}
-                        <div class="col-xs-6 col-md-4">
+                        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
                             <div class="product_card" id="product_card">
-
-                                <img src="{{ product.image_url }}" class="product_card-img" alt="...">
+                                <div class="img_div">
+                                    <img src="{{ product.image_url }}" class="product_card-img" alt="...">
+                                </div>
                                 <div class="product_card-body">
                                     <h5 class="product_card-title">{{ product.item_name }}</h5>
                                     <p class="product_card-text">{{ product.info }}</p>
@@ -47,11 +48,4 @@
         </div>
     </div>
 </div>
-<script>
-    var divMaxHeight = 0;
-    $('.product_card-body').each(function() {
-        divMaxHeight = Math.max(divMaxHeight, $(this).height());
-    });
-    $('.product_card-body').css({height:divMaxHeight + 'px'});
-</script>
 {% endblock %}
