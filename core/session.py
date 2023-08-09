@@ -140,7 +140,8 @@ class Sessions:
         returns:
             - None
         """
-        self.sessions[username] = UserSession(username, db)
+        if len(username) > 0:
+            self.sessions[username] = UserSession(username, db)
 
     def get_session(self, username: str) -> UserSession:
         """
@@ -152,7 +153,8 @@ class Sessions:
         returns:
             - The user session.
         """
-        return self.sessions[username]
+        if len(username) > 0:
+            return self.sessions[username]
 
     def remove_session(self, username: str) -> None:
         """

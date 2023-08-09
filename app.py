@@ -12,8 +12,6 @@ username = ''
 db = Database('database/store_records.db')
 products = db.get_full_inventory()
 sessions = Sessions()
-sessions.add_new_session(username, db)
-
 
 @app.route('/')
 def index_page():
@@ -26,7 +24,13 @@ def index_page():
     returns:
         - None
     """
-    return render_template('index.html', username=username, products=products, sessions=sessions)
+    sess = sessions.get_session(username)
+    if sess != None:
+        sessname = sess.username
+        if sessname != None:
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+    else:
+        return render_template('index.html')
 
 
 @app.route('/login')
@@ -40,7 +44,13 @@ def login_page():
     returns:
         - None
     """
-    return render_template('login.html')
+    sess = sessions.get_session(username)
+    if sess != None:
+        sessname = sess.username
+        if sessname & len(sessname) > 0:
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+    else:
+        return render_template('login.html')
 
 @app.route('/logout')
 def logout_page():
@@ -76,11 +86,15 @@ def login():
     """
     username = request.form['username']
     password = request.form['password']
-    if login_pipeline(username, password):
-        sessions.add_new_session(username, db)
-        return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+    if len(username) > 0:
+        if login_pipeline(username, password):
+            sessions.add_new_session(username, db)
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+        else:
+            print(f"Incorrect username ({username}) or password ({password}).")
+            return render_template('login.html', error=True)
     else:
-        print(f"Incorrect username ({username}) or password ({password}).")
+        print(f"Incorrect username or password.")
         return render_template('login.html', error=True)
 
 
