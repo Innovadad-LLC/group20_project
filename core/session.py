@@ -155,6 +155,8 @@ class Sessions:
         """
         if len(username) > 0:
             return self.sessions[username]
+        else:
+            return None
 
     def remove_session(self, username: str) -> None:
         """

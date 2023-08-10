@@ -9,6 +9,9 @@
     </div>
 </div>
 {% endif %}
+{% if error %}
+    <div class="error">* Error checking out. Please try again later. *</div>
+{% endif %}
 <div class="row" id="products_page">
     <div class="col-md-12">
         <h3>Products</h3>
@@ -41,11 +44,26 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12" id="index_buttons">
-                        <button type="submit" class="btn btn-primary" id="checkout_button">Order</button>
+                        <button type="submit" class="btn btn-primary" id="checkout_button">Proceed to Checkout</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+$('.add_to_cart_btn').click(function() {
+    $.ajax({
+        url: '/checkout',
+        type: 'POST',
+        data: {
+            email: 'email@example.com',
+            message: 'hello world!'
+        },
+        success: function(msg) {
+            alert('Email Sent');
+        }               
+    });
+});
+</script>
 {% endblock %}

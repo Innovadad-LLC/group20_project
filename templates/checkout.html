@@ -13,8 +13,17 @@
     <div class="col-md-12">
         <h3>Your Order</h3>
         <hr>
+        {% for item in order %}
+        <h4>Product name: {{ item.item_name }}:</h4>
+        <p>Quantity: {{ item.count|int}}</p>
+        <p>Unit price: {{ item.price }}</p>
+        <p>Total cost: {{ '%0.2f' % (item.price * item.count)|float }}</p>
+        <hr>
+        {% endfor %}
+        <br/>
+        <br/>
         <div class="row">
-            <p>{{ total_cost }} </p>
+            <h1>Total checkout amount: {{ '%0.2f' % total_cost|float }} </h1>
         </div>
     </div>
 </div>

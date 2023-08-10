@@ -8,10 +8,11 @@ from core.session import Sessions
 app = Flask(__name__)
 HOST, PORT = 'localhost', 8080
 global username, products, db, sessions
-username = ''
+username = 'default'
 db = Database('database/store_records.db')
 products = db.get_full_inventory()
 sessions = Sessions()
+sessions.add_new_session(username, db)
 
 @app.route('/')
 def index_page():
@@ -28,7 +29,7 @@ def index_page():
     if sess != None:
         sessname = sess.username
         if sessname != None:
-            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+            return render_template('home.html', username=sessname, products=products, sessions=sessions, logged_in=True)
     else:
         return render_template('index.html')
 
@@ -48,7 +49,7 @@ def login_page():
     if sess != None:
         sessname = sess.username
         if sessname & len(sessname) > 0:
-            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+            return render_template('home.html', username=sessname, products=products, sessions=sessions, logged_in=True)
     else:
         return render_template('login.html')
 
@@ -89,7 +90,7 @@ def login():
     if len(username) > 0:
         if login_pipeline(username, password):
             sessions.add_new_session(username, db)
-            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+            return render_template('home.html', username=username, products=products, sessions=sessions, logged_in=True)
         else:
             print(f"Incorrect username ({username}) or password ({password}).")
             return render_template('login.html', error=True)
@@ -137,7 +138,7 @@ def register():
         update_passwords(username, key, salt)
         db.insert_user(username, key, email, first_name, last_name)
         sessions.add_new_session(username, db)
-        return render_template('home.html', products=products, sessions=sessions, logged_in=True)
+        return render_template('home.html', username=username, products=products, sessions=sessions, logged_in=True)
     else:
         print(f"Username ({username}) is already taken.")
         return render_template('register.html', error=True)
@@ -157,19 +158,26 @@ def checkout():
     modifies:
         - sessions: adds items to the user's cart
     """
-    order = {}
+    order = []
     user_session = sessions.get_session(username)
-    for item in products:
-        print(f"item ID: {item['id']}")
-        if request.form[str(item['id'])] > '0':
-            count = request.form[str(item['id'])]
-            order[item['item_name']] = count
-            user_session.add_new_item(
-                item['id'], item['item_name'], item['price'], count)
+    if user_session != None:
+        for item in products:
+            print(f"item ID: {item['id']}")
+            if request.form.get(str(item['id'])) > '0':
+                count = request.form.get(str(item['id']))
+                order.append({
+                    "id": item['id'],
+                    "item_name": item['item_name'],
+                    "count": float(count),
+                    "price": item['price']
+                })
+                user_session.add_new_item(
+                    item['id'], item['item_name'], item['price'], count)
 
-    user_session.submit_cart()
-
-    return render_template('checkout.html', order=order, sessions=sessions, total_cost=user_session.total_cost, logged_in=True)
+        user_session.submit_cart()
+        return render_template('checkout.html', username=user_session.username, order=order, sessions=sessions, total_cost=user_session.total_cost, logged_in=True)
+    else:
+        return render_template('home.html', products=products, sessions=sessions, error=True)
 
 
 if __name__ == '__main__':
