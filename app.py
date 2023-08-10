@@ -8,11 +8,10 @@ from core.session import Sessions
 app = Flask(__name__)
 HOST, PORT = 'localhost', 8080
 global username, products, db, sessions
-username = 'default'
+username = ''
 db = Database('database/store_records.db')
 products = db.get_full_inventory()
 sessions = Sessions()
-sessions.add_new_session(username, db)
 
 @app.route('/')
 def index_page():
@@ -25,11 +24,12 @@ def index_page():
     returns:
         - None
     """
-    sess = sessions.get_session(username)
-    if sess != None:
+    global username, sessions
+    if sessions.get_session(username) != None:
+        sess = sessions.get_session(username)
         sessname = sess.username
         if sessname != None:
-            return render_template('home.html', username=sessname, products=products, sessions=sessions, logged_in=True)
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
     else:
         return render_template('index.html')
 
@@ -45,11 +45,12 @@ def login_page():
     returns:
         - None
     """
-    sess = sessions.get_session(username)
-    if sess != None:
+    global username, sessions
+    if sessions.get_session(username) != None:
+        sess = sessions.get_session(username)
         sessname = sess.username
-        if sessname & len(sessname) > 0:
-            return render_template('home.html', username=sessname, products=products, sessions=sessions, logged_in=True)
+        if len(sessname) > 0:
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
     else:
         return render_template('login.html')
 
@@ -64,12 +65,12 @@ def logout_page():
     returns:
         - None
     """
-    user_session = sessions.get_session(username)
-    if user_session != None:
+    global username, sessions
+    if sessions.get_session(username) != None:
         sessions.remove_session(username)
+        username = ''
     return render_template('logout.html')
-
-
+    
 @app.route('/home', methods=['POST'])
 def login():
     """
@@ -85,12 +86,13 @@ def login():
         - sessions: adds a new session to the sessions object
 
     """
+    global username, sessions
     username = request.form['username']
     password = request.form['password']
     if len(username) > 0:
         if login_pipeline(username, password):
             sessions.add_new_session(username, db)
-            return render_template('home.html', username=username, products=products, sessions=sessions, logged_in=True)
+            return render_template('home.html', products=products, sessions=sessions, logged_in=True)
         else:
             print(f"Incorrect username ({username}) or password ({password}).")
             return render_template('login.html', error=True)
@@ -128,6 +130,7 @@ def register():
         - passwords.txt: adds a new username and password combination to the file
         - database/store_records.db: adds a new user to the database
     """
+    global username, sessions
     username = request.form['username']
     password = request.form['password']
     email = request.form['email']
@@ -138,7 +141,7 @@ def register():
         update_passwords(username, key, salt)
         db.insert_user(username, key, email, first_name, last_name)
         sessions.add_new_session(username, db)
-        return render_template('home.html', username=username, products=products, sessions=sessions, logged_in=True)
+        return render_template('home.html', products=products, sessions=sessions, logged_in=True)
     else:
         print(f"Username ({username}) is already taken.")
         return render_template('register.html', error=True)
@@ -158,12 +161,13 @@ def checkout():
     modifies:
         - sessions: adds items to the user's cart
     """
+    global username, sessions
     order = []
     user_session = sessions.get_session(username)
     if user_session != None:
         for item in products:
             print(f"item ID: {item['id']}")
-            if request.form.get(str(item['id'])) > '0':
+            if request.form.get(str(item['id'])):
                 count = request.form.get(str(item['id']))
                 order.append({
                     "id": item['id'],
@@ -175,10 +179,9 @@ def checkout():
                     item['id'], item['item_name'], item['price'], count)
 
         user_session.submit_cart()
-        return render_template('checkout.html', username=user_session.username, order=order, sessions=sessions, total_cost=user_session.total_cost, logged_in=True)
+        return render_template('checkout.html', order=order, sessions=sessions, total_cost=user_session.total_cost, logged_in=True)
     else:
         return render_template('home.html', products=products, sessions=sessions, error=True)
-
-
+    
 if __name__ == '__main__':
     app.run(debug=True, host=HOST, port=PORT)
